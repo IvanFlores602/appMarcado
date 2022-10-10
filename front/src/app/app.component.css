@@ -1,0 +1,26 @@
+ul{
+    position: absolute;
+    left: 50%;
+    transform: translatex(-50%);
+    
+  }
+
+  
+  li:last-child {
+    border-right: none;
+
+  }
+  
+  li a {
+    
+    color: rgb(0, 0, 0);
+    text-align: center;
+    padding: 14px 16px;
+    margin-top: 100px;
+    text-decoration: none;
+  }
+  
+  /* Change the link color to #111 (black) on hover */
+  li a:hover {
+    background-color: rgb(251, 255, 0);
+  }
