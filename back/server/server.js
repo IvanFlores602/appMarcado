@@ -4,6 +4,7 @@ const mongoose = require('mongoose');
 const app = express();
 var bodyParser = require('body-parser');
 var nodemailer = require('nodemailer');
+// Habilita CORS
 app.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader(
@@ -16,15 +17,21 @@ app.use((req, res, next) => {
   );
   next();
 });
+
+
 // parse application/x-www-form-urlencoded
 app.use(bodyParser.urlencoded({ extended: false }))
+
 // parse application/json
 app.use(bodyParser.json())
+
+ 
 app.get('/',function(req, res){
   res.send('<h1>Equpipo 6-4D </h1>');
 });
+
 app.use(require('./routes/usuario'));
-app.use(require('./routes/login'));
+app.use(require('./routes/email'));
 app.use(require('./routes/administrador'));
 //ivanprueba
 //GwIqBieM8xaAw2FP

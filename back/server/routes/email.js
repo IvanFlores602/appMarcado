@@ -1,17 +1,18 @@
 const express = require('express');
 const bcrypt = require('bcrypt');
 const _ = require('underscore');
-const Administrador = require('../models/administrador.model');
+const Correo = require('../models/email');
 const app = express();
+var nodemailer = require('nodemailer');
 
  
   
-  app.get('/administrador', function (req, res) {
+  app.get('/email', function (req, res) {
 
       let desde = req.query.desde || 0;
       let hasta = req.query.hasta || 100;
 
-    Administrador.find({})
+    Correo.find({})
     .skip(Number(desde))
     .limit(Number(hasta))
     .exec((err, usuarios) =>{
@@ -32,10 +33,10 @@ const app = express();
     });
   });
 
-  app.get('/administrador/:id', function (req, res) {
+  app.get('/usuario/:email', function (req, res) {
 
-    let idusuario = req.params.id;
-  Usuario.findById({_id: idusuario})
+    let idusuario = req.params.email;
+  Usuario.findOne({email: idusuario})
   .exec((err, usuarios) =>{
      if(err) {
          return res.status(400).json({
@@ -54,18 +55,23 @@ const app = express();
   });
 });
   
-  app.post('/administrador', function (req, res) {
+  app.post('/email', function (req, res) {
     let body = req.body;
-    let usr = new Administrador({
-        _id: req.body._id,
-        nombre: body.nombre,
-        apellidos: req.body.apellidos,
+    let usr = new Correo({
         email: body.email,
-        direccion: body.direccion,
-        curp: body.curp,
-        password: body.password,
     });
+    var transporter = nodemailer.createTransport({
+        host: "smtp.gmail.com",
+        port: 465,
+        secure: true, // true for 465, false for other ports
+        auth: {
+          user: 'joan.montoya.1c@gmail.com', // generated ethereal user
+          pass: 'xyhjpsulieliqpbu', // generated ethereal password
+        },
+      });
 
+      
+    
     usr.save((err, usrDB) => {
         if(err) {
             return res.status(400).json({
@@ -79,10 +85,25 @@ const app = express();
             msg: 'Usuario insertado con exito',
             usrDB
         });
+        var mailOptions = {
+            from: "Aplicacion Login de joan",
+            to: usrDB.email,
+            subject: "Registro exitoso",
+            text: "confirmacion",
+            html: "<a  href='http://localhost:4200/conf'>Clic aqui para confirmar</a></li>",
+          }
+           transporter.sendMail(mailOptions, (error, info) =>{
+            if(error) {
+                res.status(500).send(error.message);
+            }else{
+                console.log("emailEnviado");
+                res.status(200).jsonp(req.body);
+            }
+           })
     });
   });
   
-  app.put('/administrador/:id', function (req, res) {
+  app.put('/usuario/:id', function (req, res) {
     let id = req.params.id
     let body = _.pick(req.body,['nombre','apellidos','email']);
 
@@ -103,8 +124,8 @@ const app = express();
     });
   });
   
-  app.delete('/administrador/:id', function (req, res) {
-     /* let id = req.params.id;
+  app.delete('/usuario/:id', function (req, res) {
+     let id = req.params.id;
 
       Usuario.deleteOne({ _id: id }, (err, usuarioBorrado) =>{
         if(err) {
@@ -120,8 +141,8 @@ const app = express();
             msg: 'Usuario eliminado con exito',
             usuarioBorrado
         });
-      });*/
-      let id =  req.params.id;
+      });
+      /*let id =  req.params.id;
 
       Usuario.findByIdAndUpdate(id, { estado: false }, { new: true, runValidators: true, context: 'query' }, (err, usrDB) => {
         if(err) {
@@ -137,7 +158,7 @@ const app = express();
             msg: 'Usuario eliminado con exito',
             usrDB
         });
-      });
+      });*/
   });
 
 module.exports = app;
